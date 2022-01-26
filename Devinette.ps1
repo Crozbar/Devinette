@@ -1,8 +1,6 @@
 <# Crozbar, janvier 2022
 Rédigé pour Powershell 7
-Ce jeu combine deux scripts simples, pour prendre de l'expérience et faire un exercice un peu plus conséquent
-Merci à Alex de ABMedia (https://www.youtube.com/c/ABMedia-ABCo/about)
-et Adam Bertram, auteur de "Powershell for Sysadmins", No Starch Press, 2020.#>
+Ce jeu implémente le plus simple des 'guessing games' dans un menu CLI,#>
 
 Clear-Host
 $menu = "
@@ -89,7 +87,7 @@ while ($true) {
                 $loadedValue = $item.value
                 $loadedTable.add("$loadedKey", $loadedValue)
             }
-            Write-warning "`n`nPartie chargée depuis fichier $sauvegarde"
+            Write-warning "`n`nPartie chargée depuis le fichier $sauvegarde"
             Start-Sleep 2
             $participants = $loadedTable            
             Clear-Host
@@ -104,7 +102,7 @@ while ($true) {
             $check = 0
             $mdp = $null
             while ( $mdp -ne $password -AND $check -lt 3) {
-                $mdp = Read-Host -Prompt "Zone protégée par mot de passe" -MaskInput
+                $mdp = Read-Host -Prompt "Zone protégée par un bout de coton" -MaskInput
                 $check ++
             }
             if ($check -lt 3){    
