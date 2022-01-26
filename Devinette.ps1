@@ -1,24 +1,22 @@
-<# Crozbar, janvier 2022
+<#Crozbar, janvier 2022
 Rédigé pour Powershell 7
-Ce jeu implémente le plus simple des 'guessing games' dans un menu CLI#>
+Ce jeu implémente le plus simple des 'guessing games' dans un pratique menu CLI#>
 
 Clear-Host
 $menu = "
 ================
-Les devinettes |
-================
-Que faire?
-
+||||Devinette|||
+================`n
 1. Ajouter un joueur
 2. Commencer une partie
 3. Afficher le score
 4. Sauvegarder la partie
 5. Charger une partie
-6. Quitter le jeu
+6. Quitter
 7. Modifier un score / RESET (admin)`n`n"
 
-$participants = @{} #Créer la table qui va contenir le couple clé=valeur pour garder le score
-$password = "root" #Devra apprendre à valider()
+$participants = @{} #Crée la table qui va contenir le couple clé=valeur pour garder le score
+$coton = "root" #pseudo mot de passe
 $sauvegarde = ".\savedGames\devinette-savegame.json" #Emplacement pour sauvegarder et charger sa partie
 
 while ($true) {   
@@ -38,6 +36,7 @@ while ($true) {
             $nom = read-host -Prompt "Qui devine? "
             if ($participants.ContainsKey($nom)) {
                 $nbcible = ( Read-Host -Prompt "Inscrivez le mot à deviner" -MaskInput )
+                Write-Output "C'est un mot à $($nbcible.length) lettres...`n`n"
                 if ($nbcible -eq ''){ Write-Warning "Cette entrée ne peut être vide..."; Start-Sleep 2; Clear-Host }
                 else{
                 do {
@@ -46,7 +45,7 @@ while ($true) {
                 }until ($nbcible -ieq $essai)
                 $participants[$nom] += 1
                 Clear-Host
-                Write-Host -ForegroundColor "green" "`n`nBravo $nom! le bon mot était: $nbcible`n`n`n"
+                Write-Host -ForegroundColor "green" "`n`nBravo $nom! le bon mot était: $nbcible`n`n"
                 }
             }else { Write-Error "Insérez un nom de joueur valide" ; Start-Sleep 2}
         }
@@ -71,16 +70,13 @@ while ($true) {
             }
         }
         }
-        '5' {#charger une partie JSON             
+        '5' {#charger une partie dans le fichier JSON             
             if (Test-Path -Path "$sauvegarde") {
             $savedTable = Get-Content "$sauvegarde" | ConvertFrom-Json -AsHashtable
             $loadedTable = @{}
-            #Y a probablement une meilleure méthode pour jouer dans un forEach loop
-            #On crée un second hashtable dérivé de la sauvegarde, et swap à la fin
+            #On crée une deuxième table dérivée de la sauvegarde, et on swap à la fin
             Foreach ($item in $savedTable.GetEnumerator()) {
-                $loadedKey = $item.key
-                $loadedValue = $item.value
-                $loadedTable.add("$loadedKey", $loadedValue)
+                $loadedTable.add("$($item.key)", $item.value)
             }
             Write-warning "`n`nPartie chargée depuis le fichier $sauvegarde"
             Start-Sleep 2
@@ -95,24 +91,22 @@ while ($true) {
             $check = 0
             $mdp = $null
             Clear-Host
-            while ( $mdp -ne $password -AND $check -lt 3) {
+            while ( $mdp -ne $coton -AND $check -lt 3) {
                 $mdp = Read-Host -Prompt "`n`nZone protégée par un bout de coton`nMot de passe" -MaskInput
                 $check ++
             }
             if ($check -lt 3){    
                 Clear-Host            
-                $reset = Read-Host -prompt "Voulez-vous repartir à zéro`n(en conservant les mêmes joueurs)?`n           [O]oui ou [N]on"
-                
+                $reset = Read-Host -prompt "`n`nVoulez-vous repartir à zéro`n(en conservant les mêmes joueurs)?`n           [O]ui ou [N]on"
                 if($reset -ieq "oui" -or $reset -ieq "o"){
                     Clear-Host
-                    Write-Output "Reset!"
-                    #Pour modifier la table dans un forEach loop, on copie les noms dans $participants
+                    Write-Output "`n`nOn reset!`n"
+                    #Pour modifier la table dans un forEach loop, on copie les noms comme pour #5
                     #dans une autre table, on leur assigne 0, puis on swap
                     $newPerson = @{}
                     ForEach ($peep in $participants.GetEnumerator()) {
-                        Write-Output "j'efface le score de $($peep.name)"
-                        $newPeep = $peep.Name
-                        $newPerson.add("$newpeep", 0)
+                        Write-Output "$($peep.name) n'a plus de point"
+                        $newPerson.add("$($peep.Name)", 0)
                     }
                     $participants = $newPerson                   
                 }else {
