@@ -4,9 +4,6 @@ Ce jeu combine deux scripts simples, pour prendre de l'expérience et faire un e
 Merci à Alex de ABMedia (https://www.youtube.com/c/ABMedia-ABCo/about)
 et Adam Bertram, auteur de "Powershell for Sysadmins", No Starch Press, 2020.#>
 
-<# On pourrait expérimenter avec le menu, créer un objet custom sur lequel on peut faire Format-List/Table par exemple.
-Pour alléger un peu les yeux.
-Ou bien faire une sorte d'animation comme dans menuanimation.ps1 #>
 Clear-Host
 $menu = "
 ================
@@ -55,7 +52,7 @@ while ($true) {
                 Clear-Host
                 Write-Host -ForegroundColor "green" "`n`nBravo $nom! le bon mot était: $nbcible`n`n`n"
                 }
-            }else { Write-Error "Il n'y a pas de joueurs portant ce nom" ; Start-Sleep 2}
+            }else { Write-Error "Insérez un nom de joueur valide" ; Start-Sleep 2}
             
         }
         '3' {
