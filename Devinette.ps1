@@ -49,7 +49,6 @@ while ($true) {
                 Write-Host -ForegroundColor "green" "`n`nBravo $nom! le bon mot était: $nbcible`n`n`n"
                 }
             }else { Write-Error "Insérez un nom de joueur valide" ; Start-Sleep 2}
-            
         }
         '3' {#Affiche le score
             Clear-Host
