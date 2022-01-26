@@ -1,6 +1,6 @@
 <# Crozbar, janvier 2022
 Rédigé pour Powershell 7
-Ce jeu implémente le plus simple des 'guessing games' dans un menu CLI,#>
+Ce jeu implémente le plus simple des 'guessing games' dans un menu CLI#>
 
 Clear-Host
 $menu = "
@@ -23,8 +23,7 @@ $sauvegarde = ".\savedGames\devinette-savegame.json" #Emplacement pour sauvegard
 
 while ($true) {   
     switch (Read-Host "$menu   Choisir une option (1-7)") {
-        '1' {
-            #Ajoute un nouveau joueur
+        '1' {#Ajoute un nouveau joueur            
             Clear-Host
             $nom = read-host -Prompt "Nouveau joueur"
                 if ($participants.ContainsKey($nom)) { #Vérifie l'existence d'un homonyme
@@ -34,8 +33,7 @@ while ($true) {
                     Clear-Host
                 }
         }
-        '2' {
-            #Commence une partie
+        '2' {#Commence une partie            
             Clear-Host
             $nom = read-host -Prompt "Qui devine? "
             if ($participants.ContainsKey($nom)) {
@@ -53,14 +51,12 @@ while ($true) {
             }else { Write-Error "Insérez un nom de joueur valide" ; Start-Sleep 2}
             
         }
-        '3' {
-            #Affiche le score
+        '3' {#Affiche le score
             Clear-Host
             $participants | format-table
         }
-        '4' {
+        '4' {#sauvegarde la partie
             if (Test-Path -Path "$sauvegarde") {
-            #sauvegarder la partie
             $participants | ConvertTo-Json |  set-content "$sauvegarde"
             Write-warning "`n`nPartie sauvegardée dans le fichier $sauvegarde"
             Start-Sleep 2; Clear-Host
@@ -69,19 +65,19 @@ while ($true) {
             $createdir = Read-Host -Prompt "Créer un nouveau dossier de sauvegarde? `n           [O]oui ou [N]on"
             if ($createdir -ieq "o" -or $createdir -ieq "oui") {
                 New-Item -Path '.\savedGames' -ItemType Directory
-                #Copié des lignes précédentes... On doit reformuler la logique
+                #Copié des lignes précédentes... On pourrait reformuler la logique
                 $participants | ConvertTo-Json |  set-content "$sauvegarde"
                 Clear-Host; Write-warning "`n`nPartie sauvegardée dans le fichier $sauvegarde"
                 Start-Sleep 2; Clear-Host
             }
         }
         }
-        '5' {
-            #charger une partie JSON 
+        '5' {#charger une partie JSON             
             if (Test-Path -Path "$sauvegarde") {
             $savedTable = Get-Content "$sauvegarde" | ConvertFrom-Json -AsHashtable
             $loadedTable = @{}
-            #Même truc que pour #7
+            #Y a probablement une meilleure méthode pour jouer dans un forEach loop
+            #On crée un second hashtable dérivé de la sauvegarde, et swap à la fin
             Foreach ($item in $savedTable.GetEnumerator()) {
                 $loadedKey = $item.key
                 $loadedValue = $item.value
@@ -93,39 +89,36 @@ while ($true) {
             Clear-Host
             }else { clear-host; Write-Error "`n`nUne erreur est survenue...`n`nRien n'a été modifié" ; Start-Sleep 2; Clear-Host}            
         }
-        '6' {
-            #Quitter
+        '6' {#Quitter            
             exit
         }
-        '7' {
-            #Modifier le score
+        '7' {#Modifie le score
             $check = 0
             $mdp = $null
+            Clear-Host
             while ( $mdp -ne $password -AND $check -lt 3) {
-                $mdp = Read-Host -Prompt "Zone protégée par un bout de coton" -MaskInput
+                $mdp = Read-Host -Prompt "`n`nZone protégée par un bout de coton`nMot de passe" -MaskInput
                 $check ++
             }
             if ($check -lt 3){    
                 Clear-Host            
                 $reset = Read-Host -prompt "Voulez-vous repartir à zéro`n(en conservant les mêmes joueurs)?`n           [O]oui ou [N]on"
                 
-                #Cette verification marche. C'est peut-être boboche mais j'suis quand même fier
                 if($reset -ieq "oui" -or $reset -ieq "o"){
                     Clear-Host
                     Write-Output "Reset!"
-                    #J'arrivais pas à modifier la table quand elle est dans un forEach loop
-                    #Donc on crée un second hashtable et swap à la fin (Y a probablement une méthode plus élégante)
+                    #Pour modifier la table dans un forEach loop, on copie les noms dans $participants
+                    #dans une autre table, on leur assigne 0, puis on swap
                     $newPerson = @{}
                     ForEach ($peep in $participants.GetEnumerator()) {
-                        Write-Output "j'efface le score de $($peep.name)" #Ça ça marche
+                        Write-Output "j'efface le score de $($peep.name)"
                         $newPeep = $peep.Name
                         $newPerson.add("$newpeep", 0)
                     }
-                    #Swap here
                     $participants = $newPerson                   
                 }else {
-                $nom = read-host -Prompt "Assigner un score à qui?"
-                $modif = Read-Host -Prompt "Son score?"
+                $nom = read-host -Prompt "À qui assigner un score?"
+                $modif = Read-Host -Prompt "Son score"
                 $participants[$nom] = [int]$modif
                 Clear-Host
                 }
