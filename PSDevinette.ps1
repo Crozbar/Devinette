@@ -37,7 +37,7 @@ while ($true) {
                 }
         }
         '2' {
-            #Commencer une partie
+            #Commence une partie
             Clear-Host
             $nom = read-host -Prompt "Qui devine? "
             if ($participants.ContainsKey($nom)) {
