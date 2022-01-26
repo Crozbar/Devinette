@@ -23,8 +23,8 @@ Que faire?
 7. Modifier un score / RESET (admin)`n`n"
 
 $participants = @{} #Créer la table qui va contenir le couple clé=valeur pour garder le score
-$password = "root" #Un jour, je saurai valider()
-$sauvegarde = "savedGames\devinette-savegame.json"
+$password = "root" #Devra apprendre à valider()
+$sauvegarde = ".\savedGames\devinette-savegame.json" #Emplacement pour sauvegarder et charger sa partie
 
 while ($true) {   
     switch (Read-Host "$menu   Choisir une option (1-7)") {
@@ -103,7 +103,7 @@ while ($true) {
             exit
         }
         '7' {
-            #Soustraire des points
+            #Modifier le score
             $check = 0
             $mdp = $null
             while ( $mdp -ne $password -AND $check -lt 3) {
@@ -132,10 +132,6 @@ while ($true) {
                 $nom = read-host -Prompt "Assigner un score à qui?"
                 $modif = Read-Host -Prompt "Son score?"
                 $participants[$nom] = [int]$modif
-                #Il faudrait avertir si la valeur n'a pas été updatée (input autre que int par ex.) quelque chose comme:
-                    <#if ($LASTEXITCODE) {
-                    Write-Error "BIP BIP"
-                    start-sleep 2} #>
                 Clear-Host
                 }
             }
