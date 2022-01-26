@@ -1,26 +1,28 @@
 <#Crozbar, janvier 2022
 Rédigé pour Powershell 7
-Ce jeu implémente le plus simple des 'guessing games' dans un pratique menu CLI#>
+Ce jeu implémente le plus simple des 'guessing games' dans un menu CLI rudimentaire#>
 
-Clear-Host
-$menu = "
-================
-||||Devinette|||
-================`n
-1. Ajouter un joueur
-2. Commencer une partie
-3. Afficher le score
-4. Sauvegarder la partie
-5. Charger une partie
-6. Quitter
-7. Modifier un score / RESET (admin)`n`n"
-
+function Show-Menu { #Menu intégré dans une fonction
+    param ([string]$titre = 'Devinette')
+    Write-Host "
+    ================
+    ||||$titre|||
+    ================`n
+    1. Ajouter un joueur
+    2. Commencer une partie
+    3. Afficher le score
+    4. Sauvegarder la partie
+    5. Charger une partie
+    6. Quitter
+    7. Modifier un score / RESET (admin)`n`n"
+}
 $participants = @{} #Crée la table qui va contenir le couple clé=valeur pour garder le score
 $coton = "root" #pseudo mot de passe
 $sauvegarde = ".\savedGames\devinette-savegame.json" #Emplacement pour sauvegarder et charger sa partie
-
-while ($true) {   
-    switch (Read-Host "$menu   Choisir une option (1-7)") {
+Clear-Host
+do {   
+    Show-Menu; $choix = Read-Host "    Choisir une option (1-7)"
+    switch ($choix) {
         '1' {#Ajoute un nouveau joueur            
             Clear-Host
             $nom = read-host -Prompt "Nouveau joueur"
@@ -36,18 +38,18 @@ while ($true) {
             $nom = read-host -Prompt "Qui devine? "
             if ($participants.ContainsKey($nom)) {
                 $nbcible = ( Read-Host -Prompt "Inscrivez le mot à deviner" -MaskInput )
-                Write-Output "C'est un mot à $($nbcible.length) lettres...`n`n"
                 if ($nbcible -eq ''){ Write-Warning "Cette entrée ne peut être vide..."; Start-Sleep 2; Clear-Host }
                 else{
-                do {
-                    $essai = Read-Host -Prompt "Devinez le mot secret..."
-                    if ($essai -eq ''){ Write-Warning "Il faut essayer quelque chose..."; Start-Sleep 2; Clear-Host }
-                }until ($nbcible -ieq $essai)
-                $participants[$nom] += 1
-                Clear-Host
-                Write-Host -ForegroundColor "green" "`n`nBravo $nom! le bon mot était: $nbcible`n`n"
+                    Write-Output "C'est un mot à $($nbcible.length) lettres...`n`n"
+                    do {
+                        $essai = Read-Host -Prompt "Devinez le mot secret..."
+                        if ($essai -eq ''){ Write-Warning "Il faut essayer quelque chose..."; Start-Sleep 2; Clear-Host }
+                    }until ($nbcible -ieq $essai)
+                    $participants[$nom] += 1
+                    Clear-Host
+                    Write-Host -ForegroundColor "green" "`n`nBravo $nom! le bon mot était: $nbcible`n`n"
                 }
-            }else { Write-Error "Insérez un nom de joueur valide" ; Start-Sleep 2}
+            }else { Write-Error "Insérez un nom de joueur valide" ; Start-Sleep 1}
         }
         '3' {#Affiche le score
             Clear-Host
@@ -58,9 +60,9 @@ while ($true) {
             $participants | ConvertTo-Json |  set-content "$sauvegarde"
             Write-warning "`n`nPartie sauvegardée dans le fichier $sauvegarde"
             Start-Sleep 2; Clear-Host
-        }else {
-            Clear-Host; Write-Error "`n`nLa destination de sauvegarde est introuvable.`n`n"; start-sleep 1
-            $createdir = Read-Host -Prompt "Créer un nouveau dossier de sauvegarde? `n           [O]oui ou [N]on"
+            }else {
+                Clear-Host; Write-Error "`n`nLa destination de sauvegarde est introuvable.`n`n"; start-sleep 1
+                $createdir = Read-Host -Prompt "Créer un nouveau dossier de sauvegarde? `n           [O]oui ou [N]on"
             if ($createdir -ieq "o" -or $createdir -ieq "oui") {
                 New-Item -Path '.\savedGames' -ItemType Directory
                 #Copié des lignes précédentes... On pourrait reformuler la logique
@@ -68,7 +70,7 @@ while ($true) {
                 Clear-Host; Write-warning "`n`nPartie sauvegardée dans le fichier $sauvegarde"
                 Start-Sleep 2; Clear-Host
             }
-        }
+            }   
         }
         '5' {#charger une partie dans le fichier JSON             
             if (Test-Path -Path "$sauvegarde") {
@@ -83,9 +85,6 @@ while ($true) {
             $participants = $loadedTable            
             Clear-Host
             }else { clear-host; Write-Error "`n`nUne erreur est survenue...`n`nRien n'a été modifié" ; Start-Sleep 2; Clear-Host}            
-        }
-        '6' {#Quitter            
-            exit
         }
         '7' {#Modifie le score
             $check = 0
@@ -118,4 +117,4 @@ while ($true) {
             }
         }
     }    
-}
+} until ($choix -eq '6')
